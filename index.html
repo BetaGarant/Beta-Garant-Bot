@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Beta Garant</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+        
+        :root {
+            --bg-deep: #02040a;
+            --bg-steel: #0f172a;
+            --gold-primary: #d4af37;
+            --gold-gradient: linear-gradient(135deg, #fcd34d 0%, #b45309 100%);
+            --steel-gradient: linear-gradient(180deg, #334155 0%, #0f172a 100%);
+            --neon-blue: #3b82f6;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #02040a 70%);
+            background-attachment: fixed;
+            overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-tech { font-family: 'Rajdhani', sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        /* --- TITANIUM & GOLD STYLES --- */
+        .card-titanium {
+            background: linear-gradient(160deg, #162030 0%, #05090e 100%);
+            border: 1px solid #1e293b;
+            box-shadow: inset 1px 1px 0 rgba(255,255,255,0.05), 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .text-gold {
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(180, 83, 9, 0.2);
+        }
+
+        .border-gold-glow {
+            border: 1px solid #b45309;
+            box-shadow: 0 0 10px rgba(217, 119, 6, 0.15);
+        }
+
+        .btn-action {
+            background: var(--gold-gradient);
+            color: #000;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-family: 'Rajdhani', sans-serif;
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-action::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+            transform: rotate(25deg); pointer-events: none;
+        }
+
+        .nav-item.active { color: #d4af37; }
+        .nav-item.active i { filter: drop-shadow(0 0 5px #d4af37); }
+
+        /* Animations */
+        .page-enter { animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="h-screen flex flex-col select-none">
+
+    <!-- HEADER -->
+    <header class="h-16 px-4 flex justify-between items-center bg-[#02040a]/90 backdrop-blur border-b border-[#1e293b] z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 relative flex items-center justify-center border border-[#d4af37]/50 rounded bg-[#0f172a]">
+                <i class="fa-solid fa-shield-halved text-[#d4af37] text-sm"></i>
+            </div>
+            <h1 class="font-tech font-bold text-lg text-white tracking-widest">BETA<span class="text-gold">GARANT</span></h1>
+        </div>
+        <div class="flex items-center gap-2 px-3 py-1 rounded border border-[#334155] bg-[#0f172a]">
+            <i class="fa-solid fa-wallet text-gray-500 text-xs"></i>
+            <span class="font-bold font-mono text-sm" id="header-balance">0 ★</span>
+        </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="flex-1 overflow-y-auto pb-24 px-4 pt-4 space-y-6 no-scrollbar relative" id="main-scroll">
+
+        <!-- VIEW: DASHBOARD (HOME) -->
+        <div id="view-home" class="page-enter">
+            <!-- Balance Vault -->
+            <div class="card-titanium rounded-xl p-5 relative overflow-hidden mb-4">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/5 blur-[50px] rounded-full"></div>
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Bot Balance</p>
+                        <h2 class="text-3xl font-bold font-tech text-white">1,450 <span class="text-gold">★</span></h2>
+                        <p class="text-xs text-gray-400">≈ 2,100 RUB</p>
+                    </div>
+                    <button onclick="switchTab('stars')" class="w-8 h-8 rounded-full bg-[#1e293b] flex items-center justify-center border border-[#334155] active:scale-95">
+                        <i class="fa-solid fa-plus text-[#d4af37]"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Menu -->
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <button onclick="switchTab('create')" class="card-titanium p-4 rounded-xl flex flex-col items-center gap-2 active:border-[#d4af37]/50 transition group">
+                    <div class="w-10 h-10 rounded-full bg-[#1e293b] flex items-center justify-center group-hover:bg-[#d4af37]/10 transition">
+                        <i class="fa-solid fa-file-contract text-gray-400 group-hover:text-[#d4af37]"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wide">Новая сделка</span>
+                </button>
+                <button onclick="switchTab('market')" class="card-titanium p-4 rounded-xl flex flex-col items-center gap-2 active:border-blue-500/50 transition group">
+                    <div class="w-10 h-10 rounded-full bg-[#1e293b] flex items-center justify-center group-hover:bg-blue-500/10 transition">
+                        <i class="fa-solid fa-shop text-gray-400 group-hover:text-blue-500"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-wide">Маркет</span>
+                </button>
+            </div>
+
+            <!-- Last Active Deal -->
+            <h3 class="font-tech text-xs text-gray-500 font-bold mb-2 ml-1">Активная сделка</h3>
+            <div onclick="switchTab('deals')" class="card-titanium rounded-xl p-0 overflow-hidden relative active:scale-[0.99] transition">
+                <div class="absolute left-0 top-0 bottom-0 w-1 bg-[#d4af37]"></div>
+                <div class="p-4 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded bg-[#0f172a] border border-[#334155] flex items-center justify-center">
+                        <i class="fa-brands fa-telegram text-xl text-blue-400"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-sm text-white">Покупка Канала</h4>
+                        <p class="text-[10px] text-[#d4af37] font-bold uppercase">Ожидает оплаты</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs text-gray-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: MARKET (Goods Only) -->
+        <div id="view-market" class="hidden page-enter">
+            <h2 class="font-tech text-xl font-bold mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-blue-500"></i> Маркет Товаров
+            </h2>
+            
+            <!-- Filter Pills -->
+            <div class="flex gap-2 overflow-x-auto no-scrollbar mb-4">
+                <button class="px-4 py-1.5 rounded bg-[#1e293b] border border-[#d4af37] text-[#d4af37] text-[10px] font-bold uppercase whitespace-nowrap">Все</button>
+                <button class="px-4 py-1.5 rounded bg-[#1e293b] border border-[#334155] text-gray-400 text-[10px] font-bold uppercase whitespace-nowrap">Игры</button>
+                <button class="px-4 py-1.5 rounded bg-[#1e293b] border border-[#334155] text-gray-400 text-[10px] font-bold uppercase whitespace-nowrap">Сервисы</button>
+            </div>
+
+            <!-- Grid -->
+            <div class="grid grid-cols-2 gap-3">
+                <!-- Item 1 -->
+                <div class="card-titanium rounded-xl p-2 group active:scale-[0.98] transition relative">
+                    <div class="h-24 bg-[#05090e] rounded border border-[#1e293b] mb-2 relative flex items-center justify-center overflow-hidden">
+                        <i class="fa-solid fa-gift text-3xl text-pink-500 opacity-80"></i>
+                        <div class="absolute top-1 right-1 bg-black/60 px-1.5 rounded border border-[#d4af37]/30">
+                            <span class="text-[8px] text-[#d4af37] font-bold uppercase">HOT</span>
+                        </div>
+                    </div>
+                    <div class="px-1">
+                        <h4 class="text-xs font-bold text-gray-200 mb-1 uppercase">TG Premium 1Y</h4>
+                        <p class="text-[9px] text-gray-500 mb-2">@seller_pro • Online</p>
+                        <div class="flex justify-between items-center border-t border-[#334155] pt-2">
+                            <span class="text-xs font-bold text-white font-mono">1,500 ₽</span>
+                            <button onclick="openDealCreation('TG Premium 1Y', 1500, 'RUB')" class="w-6 h-6 rounded bg-[#334155] flex items-center justify-center text-white hover:bg-[#d4af37] hover:text-black transition">
+                                <i class="fa-solid fa-cart-plus text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: DEALS (HUB) -->
+        <div id="view-deals" class="hidden page-enter h-full flex flex-col">
+            <h2 class="font-tech text-xl font-bold mb-4">Мои Сделки</h2>
+            
+            <!-- Deal List (Scrollable) -->
+            <div class="flex-1 space-y-3 overflow-y-auto no-scrollbar" id="deals-list">
+                <!-- Mock Active Deal -->
+                <div onclick="openDealChat('8291')" class="card-titanium p-4 rounded-xl border-l-2 border-l-[#d4af37] active:bg-[#1e293b]">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-xs font-bold text-white uppercase">ID #8291</span>
+                        <span class="text-[10px] bg-yellow-500/10 text-yellow-500 px-2 rounded font-bold uppercase">Active</span>
+                    </div>
+                    <h3 class="font-bold text-sm text-gray-300 mb-1">Покупка Канала</h3>
+                    <div class="flex justify-between text-[10px] text-gray-500">
+                        <span>Сумма: 5,000 RUB</span>
+                        <span>Роль: Buyer</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHAT OVERLAY (Hidden by default) -->
+            <div id="deal-chat-overlay" class="fixed inset-0 bg-[#02040a] z-50 flex flex-col hidden transform transition-transform translate-x-full">
+                <!-- Chat Header -->
+                <div class="h-14 border-b border-[#334155] flex items-center justify-between px-4 bg-[#0f172a]">
+                    <button onclick="closeDealChat()" class="w-8 h-8 flex items-center justify-center text-gray-400"><i class="fa-solid fa-arrow-left"></i></button>
+                    <div class="text-center">
+                        <h4 class="font-bold text-white text-sm">Сделка #8291</h4>
+                        <span class="text-[10px] text-[#d4af37] font-bold uppercase status-text">Ожидание оплаты</span>
+                    </div>
+                    <button class="w-8 h-8 flex items-center justify-center text-gray-400"><i class="fa-solid fa-circle-info"></i></button>
+                </div>
+
+                <!-- Deal Status Progress -->
+                <div class="bg-[#05090e] p-3 border-b border-[#334155] flex justify-between px-8 relative">
+                    <div class="absolute top-1/2 left-10 right-10 h-0.5 bg-[#334155] -z-10"></div>
+                    <div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center border-2 border-[#05090e] z-10"><i class="fa-solid fa-check text-[10px] text-black"></i></div>
+                    <div class="w-6 h-6 rounded-full bg-[#d4af37] flex items-center justify-center border-2 border-[#05090e] shadow-[0_0_10px_#d4af37] z-10"><i class="fa-solid fa-wallet text-[10px] text-black"></i></div>
+                    <div class="w-6 h-6 rounded-full bg-[#334155] flex items-center justify-center border-2 border-[#05090e] z-10"><i class="fa-solid fa-box text-[10px] text-gray-400"></i></div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#02040a]" id="chat-messages">
+                    <div class="flex justify-center"><span class="text-[9px] text-gray-600 uppercase font-bold bg-[#1e293b] px-2 py-1 rounded">Сделка создана</span></div>
+                    
+                    <!-- System Msg -->
+                    <div class="p-3 rounded-lg border border-[#d4af37]/30 bg-[#d4af37]/5 mx-4 text-center">
+                        <i class="fa-solid fa-shield-cat text-[#d4af37] mb-1"></i>
+                        <p class="text-[10px] text-gray-300">Гарант ожидает поступления средств от покупателя. Не передавайте товар до уведомления.</p>
+                    </div>
+
+                    <div class="flex flex-col items-end gap-1">
+                        <div class="bg-[#1e293b] text-white text-xs p-3 rounded-2xl rounded-tr-none max-w-[80%] border border-[#334155]">
+                            Привет, я готов оплатить. Реквизиты внутри бота?
+                        </div>
+                        <span class="text-[9px] text-gray-600">14:02</span>
+                    </div>
+                </div>
+
+                <!-- Chat Input -->
+                <div class="p-3 bg-[#0f172a] border-t border-[#334155] flex gap-2">
+                    <button class="w-10 h-10 rounded-lg bg-[#334155] text-gray-400 flex items-center justify-center"><i class="fa-solid fa-paperclip"></i></button>
+                    <input type="text" class="flex-1 bg-[#05090e] border border-[#334155] rounded-lg px-4 text-sm text-white focus:border-[#d4af37] focus:outline-none" placeholder="Сообщение...">
+                    <button class="w-10 h-10 rounded-lg bg-[#d4af37] text-black flex items-center justify-center font-bold"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: STARS SHOP -->
+        <div id="view-stars" class="hidden page-enter">
+            <h2 class="font-tech text-xl font-bold mb-4">Управление Звездами</h2>
+
+            <div class="flex bg-[#1e293b] p-1 rounded-lg mb-6">
+                <button onclick="setStarMode('bot')" id="sm-bot" class="flex-1 py-2 rounded bg-[#05090e] text-white text-xs font-bold uppercase border border-[#334155] shadow">В БОТА</button>
+                <button onclick="setStarMode('account')" id="sm-acc" class="flex-1 py-2 rounded text-gray-500 text-xs font-bold uppercase">НА АККАУНТ</button>
+            </div>
+
+            <!-- Card -->
+            <div class="card-titanium p-6 text-center">
+                <div class="w-16 h-16 mx-auto rounded-full bg-[#1e293b] flex items-center justify-center border border-[#d4af37]/30 mb-4 shadow-[0_0_20px_rgba(212,175,55,0.1)]">
+                    <i class="fa-solid fa-star text-3xl text-[#d4af37]"></i>
+                </div>
+                
+                <h3 class="text-white font-bold text-lg mb-1" id="star-title">Пополнение баланса</h3>
+                <p class="text-xs text-gray-500 mb-6" id="star-desc">Используйте звезды для оплаты сделок внутри гаранта.</p>
+
+                <div id="acc-input" class="hidden mb-4 text-left">
+                    <label class="text-[10px] text-gray-500 font-bold uppercase ml-1">Username получателя</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-3 text-gray-500">@</span>
+                        <input type="text" id="recipient-user" class="w-full bg-[#05090e] border border-[#334155] rounded-lg py-3 pl-7 pr-3 text-sm text-white focus:border-[#d4af37] outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <button onclick="setAmt(50)" class="py-2 border border-[#334155] rounded hover:border-[#d4af37] text-gray-300 text-xs font-bold">50</button>
+                    <button onclick="setAmt(100)" class="py-2 border border-[#334155] rounded hover:border-[#d4af37] text-gray-300 text-xs font-bold">100</button>
+                    <button onclick="setAmt(500)" class="py-2 border border-[#334155] rounded hover:border-[#d4af37] text-gray-300 text-xs font-bold">500</button>
+                </div>
+
+                <input type="number" id="star-amt" class="w-full bg-[#05090e] border border-[#334155] rounded-lg py-3 text-center text-white font-mono font-bold text-lg mb-4 focus:border-[#d4af37] outline-none" placeholder="0">
+
+                <button onclick="buyStarsAction()" class="btn-action w-full py-3.5 rounded-lg tracking-widest text-sm">
+                    ОПЛАТИТЬ
+                </button>
+            </div>
+        </div>
+
+        <!-- VIEW: PROFILE & REFERRAL -->
+        <div id="view-profile" class="hidden page-enter">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-[#d4af37] to-[#855a15] p-0.5">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Beta" class="w-full h-full rounded-full bg-[#02040a]">
+                </div>
+                <div>
+                    <h2 class="font-tech text-xl font-bold text-white">USER #991</h2>
+                    <div class="flex gap-2">
+                        <span class="text-[9px] bg-[#d4af37]/10 text-[#d4af37] border border-[#d4af37]/30 px-2 rounded uppercase font-bold">Gold Tier</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Referral System -->
+            <div class="card-titanium p-0 overflow-hidden relative mb-6">
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+                <div class="p-5 relative z-10">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-bold text-white text-sm uppercase">Реферальная сеть</h3>
+                            <p class="text-[10px] text-gray-400">Доход только с активных трейдеров</p>
+                        </div>
+                        <i class="fa-solid fa-network-wired text-[#d4af37]"></i>
+                    </div>
+                    
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="text-xs text-gray-400">Активных рефералов</span>
+                        <span class="font-mono font-bold text-white">12</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-[#05090e] rounded-full overflow-hidden mb-4">
+                        <div class="h-full bg-[#d4af37] w-[40%]"></div>
+                    </div>
+
+                    <div class="bg-[#05090e] rounded p-3 flex justify-between items-center border border-[#334155] mb-4">
+                        <span class="text-[10px] text-gray-500 uppercase font-bold">Мой заработок</span>
+                        <span class="font-mono font-bold text-[#d4af37]">+ 4,200 ₽</span>
+                    </div>
+
+                    <button onclick="copyRef()" class="w-full py-3 rounded border border-[#334155] text-xs font-bold uppercase hover:bg-[#1e293b] transition">
+                        <i class="fa-regular fa-copy mr-1"></i> Копировать ссылку
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: CREATE DEAL (Hidden Form) -->
+        <div id="view-create" class="hidden page-enter">
+            <h2 class="font-tech text-xl font-bold mb-4">Конструктор Сделки</h2>
+            <div class="card-titanium p-5 rounded-xl">
+                 <div class="flex bg-[#05090e] p-1 rounded mb-4 border border-[#334155]">
+                    <button onclick="setRole('seller')" id="cr-seller" class="flex-1 py-2 text-xs font-bold uppercase rounded bg-[#334155] text-white">Продавец</button>
+                    <button onclick="setRole('buyer')" id="cr-buyer" class="flex-1 py-2 text-xs font-bold uppercase rounded text-gray-500">Покупатель</button>
+                </div>
+                
+                <div class="space-y-4">
+                    <input type="text" id="d-title" class="w-full bg-[#05090e] border border-[#334155] rounded p-3 text-sm text-white focus:border-[#d4af37] outline-none" placeholder="Название товара">
+                    <div class="flex gap-2">
+                        <input type="number" id="d-amount" class="w-full bg-[#05090e] border border-[#334155] rounded p-3 text-sm text-white focus:border-[#d4af37] outline-none font-mono" placeholder="Сумма">
+                        <select id="d-curr" class="bg-[#05090e] border border-[#334155] rounded px-2 text-sm text-white font-bold outline-none">
+                            <option>RUB</option>
+                            <option>USDT</option>
+                            <option>STARS</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="sendCreateDeal()" class="btn-action w-full py-4 rounded mt-6 text-sm tracking-widest">
+                    СОЗДАТЬ
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- NAVIGATION -->
+    <nav class="h-16 bg-[#02040a]/95 backdrop-blur border-t border-[#1e293b] fixed bottom-0 w-full z-50 flex justify-around items-center px-2">
+        <button onclick="switchTab('home')" id="nav-home" class="nav-item active flex flex-col items-center gap-1 w-14 text-gray-500 transition">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[9px] font-bold uppercase">Home</span>
+        </button>
+        <button onclick="switchTab('deals')" id="nav-deals" class="nav-item flex flex-col items-center gap-1 w-14 text-gray-500 transition">
+            <i class="fa-solid fa-briefcase text-lg"></i>
+            <span class="text-[9px] font-bold uppercase">Deals</span>
+        </button>
+        
+        <!-- Create Button -->
+        <button onclick="switchTab('create')" class="w-14 h-14 -mt-8 bg-gradient-to-br from-[#334155] to-[#0f172a] border-4 border-[#02040a] rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.2)] active:scale-90 transition">
+            <i class="fa-solid fa-plus text-xl text-[#d4af37]"></i>
+        </button>
+
+        <button onclick="switchTab('stars')" id="nav-stars" class="nav-item flex flex-col items-center gap-1 w-14 text-gray-500 transition">
+            <i class="fa-solid fa-star text-lg"></i>
+            <span class="text-[9px] font-bold uppercase">Stars</span>
+        </button>
+        <button onclick="switchTab('profile')" id="nav-profile" class="nav-item flex flex-col items-center gap-1 w-14 text-gray-500 transition">
+            <i class="fa-solid fa-user text-lg"></i>
+            <span class="text-[9px] font-bold uppercase">ID</span>
+        </button>
+    </nav>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.setHeaderColor('#02040a');
+        tg.setBackgroundColor('#02040a');
+
+        // STATE
+        let currentRole = 'seller';
+        let starMode = 'bot';
+
+        function switchTab(tabId) {
+            tg.HapticFeedback.impactOccurred('light');
+            // Hide all views
+            ['home', 'market', 'deals', 'stars', 'profile', 'create'].forEach(id => {
+                const el = document.getElementById(`view-${id}`);
+                if(el) el.classList.add('hidden');
+                
+                const nav = document.getElementById(`nav-${id}`);
+                if(nav) {
+                    nav.classList.remove('active', 'text-[#d4af37]');
+                    nav.classList.add('text-gray-500');
+                }
+            });
+
+            // Show target
+            const target = document.getElementById(`view-${tabId}`);
+            target.classList.remove('hidden');
+            target.classList.remove('page-enter');
+            void target.offsetWidth;
+            target.classList.add('page-enter');
+
+            // Update Nav
+            const navActive = document.getElementById(`nav-${tabId}`);
+            if(navActive) {
+                navActive.classList.add('active', 'text-[#d4af37]');
+                navActive.classList.remove('text-gray-500');
+            }
+        }
+
+        // Deal Chat Logic
+        function openDealChat(id) {
+            document.getElementById('deal-chat-overlay').classList.remove('hidden', 'translate-x-full');
+        }
+        function closeDealChat() {
+            document.getElementById('deal-chat-overlay').classList.add('translate-x-full');
+            setTimeout(() => {
+                document.getElementById('deal-chat-overlay').classList.add('hidden');
+            }, 300);
+        }
+
+        // Stars Logic
+        function setStarMode(mode) {
+            starMode = mode;
+            const b = document.getElementById('sm-bot');
+            const a = document.getElementById('sm-acc');
+            const inp = document.getElementById('acc-input');
+            const tit = document.getElementById('star-title');
+            const desc = document.getElementById('star-desc');
+
+            if(mode === 'bot') {
+                b.className = "flex-1 py-2 rounded bg-[#05090e] text-white text-xs font-bold uppercase border border-[#334155] shadow";
+                a.className = "flex-1 py-2 rounded text-gray-500 text-xs font-bold uppercase";
+                inp.classList.add('hidden');
+                tit.innerText = "Пополнение баланса";
+                desc.innerText = "Используйте звезды для сделок.";
+            } else {
+                a.className = "flex-1 py-2 rounded bg-[#05090e] text-white text-xs font-bold uppercase border border-[#334155] shadow";
+                b.className = "flex-1 py-2 rounded text-gray-500 text-xs font-bold uppercase";
+                inp.classList.remove('hidden');
+                tit.innerText = "Вывод на аккаунт";
+                desc.innerText = "Мы отправим звезды на указанный юзернейм.";
+            }
+        }
+
+        function setAmt(val) { document.getElementById('star-amt').value = val; }
+
+        function buyStarsAction() {
+            const amt = document.getElementById('star-amt').value;
+            const user = document.getElementById('recipient-user').value;
+            
+            if(!amt) return;
+            
+            tg.sendData(JSON.stringify({
+                action: 'buy_stars',
+                amount: amt,
+                mode: starMode,
+                recipient: user
+            }));
+        }
+
+        // Create Deal Logic
+        function setRole(r) {
+            currentRole = r;
+            const s = document.getElementById('cr-seller');
+            const b = document.getElementById('cr-buyer');
+            if(r === 'seller') {
+                s.className = "flex-1 py-2 text-xs font-bold uppercase rounded bg-[#334155] text-white";
+                b.className = "flex-1 py-2 text-xs font-bold uppercase rounded text-gray-500";
+            } else {
+                b.className = "flex-1 py-2 text-xs font-bold uppercase rounded bg-[#334155] text-white";
+                s.className = "flex-1 py-2 text-xs font-bold uppercase rounded text-gray-500";
+            }
+        }
+
+        function sendCreateDeal() {
+            const t = document.getElementById('d-title').value;
+            const a = document.getElementById('d-amount').value;
+            const c = document.getElementById('d-curr').value;
+            
+            if(!t || !a) { tg.showAlert("Заполните поля!"); return; }
+
+            tg.sendData(JSON.stringify({
+                action: 'create_deal',
+                title: t,
+                amount: a,
+                currency: c,
+                role: currentRole
+            }));
+        }
+        
+        function openDealCreation(title, amount, curr) {
+            switchTab('create');
+            document.getElementById('d-title').value = title;
+            document.getElementById('d-amount').value = amount;
+            // auto set buyer
+            setRole('buyer');
+        }
+
+        function copyRef() {
+            // Simulated copy
+            tg.showAlert("Ссылка скопирована!");
+        }
+    </script>
+</body>
+</html>
+
+
